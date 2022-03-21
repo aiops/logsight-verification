@@ -8,6 +8,8 @@ ENV CFLAGS="-I/usr/include"
 
 # set the working directory in the container
 WORKDIR /code
+COPY ./main.py .
+COPY ./utils.py .
 # install dependencies
 RUN pip install PyGithub
 RUN pip install logsight-sdk-py==0.1.21
