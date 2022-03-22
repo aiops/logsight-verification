@@ -36,11 +36,14 @@ g = LogsightLogs(user.token)
 r = g.send(APPLICATION_ID, [end_stream_log_entry], tag='end_stream')
 time.sleep(SECONDS_SLEEP)
 flush_id = g.flush(r['receiptId'])['flushId']
-compare = LogsightCompare(user.user_id, user.token)
 
+compare = LogsightCompare(user.user_id, user.token)
 while True:
     try:
-        r = compare.compare(app_id=APPLICATION_ID, baseline_tag=BASELINE_TAG, candidate_tag=CANDIDATE_TAG, flush_id=flush_id)
+        r = compare.compare(app_id=APPLICATION_ID,
+                            baseline_tag=BASELINE_TAG,
+                            candidate_tag=CANDIDATE_TAG,
+                            flush_id=flush_id)
         break
     except logsight.exceptions.Conflict as conflict:
         time.sleep(SECONDS_SLEEP)
@@ -55,12 +58,13 @@ while True:
             CANDIDATE_TAG = copy.deepcopy(BASELINE_TAG)
         time.sleep(SECONDS_SLEEP)
 
-report = create_verification_report(verification_result=r, baseline_tag=BASELINE_TAG, candidate_tag=CANDIDATE_TAG)
+report = create_verification_report(verification_result=r,
+                                    baseline_tag=BASELINE_TAG,
+                                    candidate_tag=CANDIDATE_TAG)
 print(report)
+
 if r['risk'] >= RISK_THRESHOLD:
     create_github_issue(report)
     exit(1)
 else:
     exit(0)
-
-

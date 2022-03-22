@@ -1,76 +1,78 @@
 import os
 from github import Github
 
-def create_verification_report(verification_result, baseline_tag, candidate_tag):
+
+def create_verification_report(vresults, baseline_tag, candidate_tag):
     github_branch = os.environ['GITHUB_REF']
     github_actor = os.environ['GITHUB_ACTOR']
     github_workflow = os.environ['GITHUB_WORKFLOW']
-    report = f"""
+    return f"""
 <a href="https://logsight.ai/"><img src="https://logsight.ai/assets/img/logol.png" width="120"/></a>
-<a href="https://docs.logsight.ai/#/">Docs</a>
 
-## Report
+# Report
 
-| Name       | Value |
-| :---        |    :----:   |  
-| Github actor      |   {github_actor}     |
-| Workflow     |   {github_workflow}  | 
-| Baseline branch    |   {github_branch}  | 
-| Baseline tag  |   {baseline_tag}  | 
-| Candidate branch  |   {github_branch} | 
-| Candidate tag  |    {candidate_tag}  | 
+[:page_with_curl: :bar_chart: Detailed online report :link:]({vresults['link']})
 
-#### [:page_with_curl: :bar_chart: Detailed online report :link:]({verification_result['link']})
+## GitHub metadata
 
-#### Deployment risk
-#### :zap: {verification_result['risk']}%
+|  Name                  |    Value                          |
+| ---------------------- | --------------------------------- |
+| Github actor           | {github_actor}                    |
+| Workflow               | {github_workflow}                 |
+| Baseline tag / branch  | {baseline_tag} / {github_branch}  |
+| Candidate tag / branch | {candidate_tag} / {github_branch} |
 
-#### Result Overview
+## Deployment risk
++ :zap: {vresults['risk']}%
 
-| Name       | Value |
-| :---        |    :----:   |  
-| Total log count      |   {verification_result['totalLogCount']}     |
-| Baseline log count   |   {verification_result['baselineLogCount']}  | 
-| Compare log count    |   {verification_result['candidateLogCount']}  | 
-| Change from compare to baseline  |   {verification_result['candidateChangePercentage']}%  | 
+## Log records statistics
 
-#### State analysis
+| Total Count                 |            Baseline            |             Compare             |                 % Change                 |
+| :-------------------------- | :----------------------------: | :-----------------------------: | :--------------------------------------: |
+| {vresults['totalLogCount']} | {vresults['baselineLogCount']} | {vresults['candidateLogCount']} | {vresults['candidateChangePercentage']}% |
+
+## State analysis
 
 | Name       | Total | 🔴 Failed % | :green_circle: Report % |
 | :---        |    :----:   |          ---: |          ---: |
-| :arrow_right: Added states    |   {verification_result['addedStatesTotalCount']}     | {verification_result['addedStatesFaultPercentage']} |  {verification_result['addedStatesReportPercentage']} |
-|  :arrow_left: Deleted states   |   {verification_result['deletedStatesTotalCount']} | {verification_result['deletedStatesFaultPercentage']} |  {verification_result['addedStatesReportPercentage']} |
-| :arrow_right_hook: Recurring states |   {verification_result['recurringStatesTotalCount']}  |  {verification_result['recurringStatesFaultPercentage']} |  {verification_result['recurringStatesReportPercentage']}| 
-| :arrows_counterclockwise: Freq. change states    |    {verification_result['frequencyChangeTotalCount']}  | :arrow_up: {verification_result['frequencyChangeFaultPercentage']['increase']} :arrow_down: {verification_result['frequencyChangeFaultPercentage']['decrease']} |  :arrow_up: {verification_result['frequencyChangeReportPercentage']['increase']} :arrow_down: {verification_result['frequencyChangeReportPercentage']['decrease']}  |
+| :arrow_right: Added states    |   {vresults['addedStatesTotalCount']}     | {vresults['addedStatesFaultPercentage']} |  {vresults['addedStatesReportPercentage']} |
+|  :arrow_left: Deleted states   |   {vresults['deletedStatesTotalCount']} | {vresults['deletedStatesFaultPercentage']} |  {vresults['addedStatesReportPercentage']} |
+| :arrow_right_hook: Recurring states |   {vresults['recurringStatesTotalCount']}  |  {vresults['recurringStatesFaultPercentage']} |  {vresults['recurringStatesReportPercentage']}| 
+| :arrows_counterclockwise: Freq. change states    |    {vresults['frequencyChangeTotalCount']}  | :arrow_up: {vresults['frequencyChangeFaultPercentage']['increase']} :arrow_down: {vresults['frequencyChangeFaultPercentage']['decrease']} |  :arrow_up: {vresults['frequencyChangeReportPercentage']['increase']} :arrow_down: {vresults['frequencyChangeReportPercentage']['decrease']}  |
 
+# Documentation
+
++ <a href="https://docs.logsight.ai/#/">Docs</a>
     """
-    return report
 
 
 def create_github_issue(verification_report):
     # extracting all the input from environments
-    title = "Stage Verifier logsight.ai [baseline: " + os.environ['INPUT_BASELINE_TAG'][:6] + " | candidate:" + os.environ['INPUT_CANDIDATE_TAG'][:6] + "]"
+    title = "Logsight Stage Verifier [" \
+            "baseline: " + os.environ['INPUT_BASELINE_TAG'][:6] + " | " + \
+            "candidate:" + os.environ['INPUT_CANDIDATE_TAG'][:6] + \
+            "]"
     token = os.environ['INPUT_GITHUB_TOKEN']
-    labels = 'log-verification'
-    assignees = os.environ['GITHUB_ACTOR']
+    labels = ['log-verification']
+    # assignees = os.environ['GITHUB_ACTOR']
 
-    # as I said GitHub expects labels and assignees as list but we supplied as string in yaml as list are not supposed in
-    # .yaml format
-    if labels and labels != '':
-        labels = labels.split(',')  # splitting by , to make a list
-    else:
-        labels = []  # setting empty list if we get labels as '' or None
+    # GitHub expects labels and assignees as list
+    # but we supplied as string in yaml as list are not supposed in .yaml format
+    # if labels and labels != '':
+    #     labels = labels.split(',')  # splitting by , to make a list
+    # else:
+    #     labels = []  # setting empty list if we get labels as '' or None
 
-    if assignees and assignees != '':
-        assignees = assignees.split(',')  # splitting by , to make a list
-    else:
-        assignees = []  # setting empty list if we get labels as '' or None
+    # if assignees and assignees != '':
+    #     assignees = assignees.split(',')  # splitting by , to make a list
+    # else:
+    #     assignees = []  # setting empty list if we get labels as '' or None
 
     g = Github(token)
     # GITHUB_REPOSITORY is the repo name in owner/name format in Github Workflow
     repo = g.get_repo(os.environ['GITHUB_REPOSITORY'])
 
-    issue = repo.create_issue(
+    repo.create_issue(
         title=title,
         body=verification_report,
         labels=labels
