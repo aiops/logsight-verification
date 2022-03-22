@@ -1,15 +1,16 @@
 import copy
 import time
 from datetime import datetime
+import argparse
 
 import logsight.exceptions
 from dateutil.tz import tzlocal
 from logsight.user import LogsightUser
-from logsight.application import LogsightApplication
 from logsight.logs import LogsightLogs
 from logsight.compare import LogsightCompare
-import argparse
+
 from utils import create_verification_report, create_github_issue
+
 
 SECONDS_SLEEP = 3
 
@@ -58,7 +59,7 @@ while True:
             CANDIDATE_TAG = copy.deepcopy(BASELINE_TAG)
         time.sleep(SECONDS_SLEEP)
 
-report = create_verification_report(verification_result=r,
+report = create_verification_report(vresults=r,
                                     baseline_tag=BASELINE_TAG,
                                     candidate_tag=CANDIDATE_TAG)
 print(report)
