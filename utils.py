@@ -11,7 +11,7 @@ def create_verification_report(vresults, baseline_tag, candidate_tag):
 
 # Report
 
-[:page_with_curl: :bar_chart: Detailed online report :link:]({vresults['link']})
+[:bar_chart: Detailed online report]({vresults['link']})
 
 ## GitHub metadata
 
@@ -27,8 +27,8 @@ def create_verification_report(vresults, baseline_tag, candidate_tag):
 
 ## Log records statistics
 
-| Total Count                 |            Baseline            |             Compare             |                 % Change                 |
-| :-------------------------- | :----------------------------: | :-----------------------------: | :--------------------------------------: |
+|        Total Count          |            Baseline            |             Compare             |                 % Change                 |
+| :-------------------------: | :----------------------------: | :-----------------------------: | :--------------------------------------: |
 | {vresults['totalLogCount']} | {vresults['baselineLogCount']} | {vresults['candidateLogCount']} | {vresults['candidateChangePercentage']}% |
 
 ## State analysis
@@ -42,7 +42,7 @@ def create_verification_report(vresults, baseline_tag, candidate_tag):
 
 # Documentation
 
-+ <a href="https://docs.logsight.ai/#/">Docs</a>
++ <a href="https://docs.logsight.ai/#/">Logsight documentation</a>
     """
 
 
