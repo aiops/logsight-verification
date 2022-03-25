@@ -31,11 +31,10 @@ CANDIDATE_TAG = args.candidate_tag
 RISK_THRESHOLD = args.risk_threshold
 
 user = LogsightUser(email=EMAIL, password=PASSWORD)
-
+time.sleep(SECONDS_SLEEP)
 end_stream_log_entry = {'timestamp': datetime.now(tz=tzlocal()).isoformat(), 'message': "End stream."}
 g = LogsightLogs(user.token)
 r = g.send(APPLICATION_ID, [end_stream_log_entry], tag='end_stream')
-time.sleep(SECONDS_SLEEP)
 flush_id = g.flush(r['receiptId'])['flushId']
 time.sleep(SECONDS_SLEEP)
 compare = LogsightCompare(user.user_id, user.token)
