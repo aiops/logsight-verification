@@ -37,7 +37,7 @@ g = LogsightLogs(user.token)
 r = g.send(APPLICATION_ID, [end_stream_log_entry], tag='end_stream')
 time.sleep(SECONDS_SLEEP)
 flush_id = g.flush(r['receiptId'])['flushId']
-
+time.sleep(SECONDS_SLEEP)
 compare = LogsightCompare(user.user_id, user.token)
 while True:
     try:
