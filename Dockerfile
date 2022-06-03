@@ -11,7 +11,8 @@ WORKDIR /code
 COPY ./main.py .
 COPY ./utils.py .
 # install dependencies
-RUN pip install --no-cache-dir PyGithub logsight-sdk-py
+RUN pip install --no-cache-dir PyGithub git+https://github.com/aiops/logsight-sdk-py.git@demo
+
 #
 ## copy code
 #COPY ../logsight-verification-action .
