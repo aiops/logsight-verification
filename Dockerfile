@@ -10,8 +10,8 @@ ENV CFLAGS="-I/usr/include"
 WORKDIR /code
 COPY ./main.py .
 COPY ./utils.py .
-# install dependencies
-RUN pip install --no-cache-dir PyGithub git+https://github.com/aiops/logsight-sdk-py.git@demo
+# install dependencieshttps://github.com/user/repository/archive/branch.zip
+RUN pip install --no-cache-dir PyGithub https://github.com/aiops/logsight-sdk-py/archive/demo.zip
 
 #
 ## copy code
