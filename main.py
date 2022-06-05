@@ -9,7 +9,7 @@ from logsight.user import LogsightUser
 
 from utils import create_verification_report, create_github_issue
 
-SECONDS_SLEEP = 3
+SECONDS_SLEEP = 10
 
 # Instantiate the parser
 parser = argparse.ArgumentParser(description='Logsight Init')
@@ -25,7 +25,8 @@ PASSWORD = args.password
 BASELINE_TAGS = {"version": args.baseline_tags, "applicationName": args.application_name}
 CANDIDATE_TAGS = {"version": args.candidate_tags, "applicationName": args.application_name}
 RISK_THRESHOLD = args.risk_threshold
-
+print(BASELINE_TAGS)
+print(CANDIDATE_TAGS)
 user = LogsightUser(email=EMAIL, password=PASSWORD)
 time.sleep(SECONDS_SLEEP)
 compare = LogsightCompare(user.user_id, user.token)
