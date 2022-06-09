@@ -1,11 +1,10 @@
 import argparse
 import copy
-import json
 import time
 
 import logsight.exceptions
 from logsight.compare import LogsightCompare
-from logsight.user import LogsightUser
+from logsight.authentication import LogsightAuthentication
 
 from utils import create_verification_report, create_github_issue
 
@@ -25,9 +24,9 @@ PASSWORD = args.password
 BASELINE_TAGS = {"version": args.baseline_tags, "applicationName": args.application_name}
 CANDIDATE_TAGS = {"version": args.candidate_tags, "applicationName": args.application_name}
 RISK_THRESHOLD = args.risk_threshold
-user = LogsightUser(email=EMAIL, password=PASSWORD)
+auth = LogsightAuthentication(email=EMAIL, password=PASSWORD)
 time.sleep(SECONDS_SLEEP)
-compare = LogsightCompare(user.token)
+compare = LogsightCompare(auth.token)
 flag = 0
 while True:
     try:
