@@ -27,7 +27,7 @@ CANDIDATE_TAGS = {"version": args.candidate_tags, "applicationName": args.applic
 RISK_THRESHOLD = args.risk_threshold
 user = LogsightUser(email=EMAIL, password=PASSWORD)
 time.sleep(SECONDS_SLEEP)
-compare = LogsightCompare(user.user_id, user.token)
+compare = LogsightCompare(user.token)
 flag = 0
 while True:
     try:
