@@ -2,7 +2,7 @@ import os
 from github import Github
 
 
-def create_verification_report(vresults, baseline_tag, candidate_tag):
+def create_verification_report(vresults, baseline_tags, candidate_tags):
     github_branch = os.environ['GITHUB_REF']
     github_actor = os.environ['GITHUB_ACTOR']
     github_workflow = os.environ['GITHUB_WORKFLOW']
@@ -19,8 +19,8 @@ def create_verification_report(vresults, baseline_tag, candidate_tag):
 | ---------------------- | --------------------------------- |
 | Github actor           | {github_actor}                    |
 | Workflow               | {github_workflow}                 |
-| Baseline tag / branch  | {baseline_tag} / {github_branch}  |
-| Candidate tag / branch | {candidate_tag} / {github_branch} |
+| Baseline tag / branch  | {str(baseline_tags)} / {github_branch}  |
+| Candidate tag / branch | {str(candidate_tags)} / {github_branch} |
 
 ## Deployment risk
 + :zap: {vresults['risk']}%
@@ -46,12 +46,9 @@ def create_verification_report(vresults, baseline_tag, candidate_tag):
     """
 
 
-def create_github_issue(verification_report):
+def create_github_issue(verification_report, vresults):
     # extracting all the input from environments
-    title = "Logsight Stage Verifier [" \
-            "baseline: " + os.environ['INPUT_BASELINE_TAG'][:6] + " | " + \
-            "candidate:" + os.environ['INPUT_CANDIDATE_TAG'][:6] + \
-            "]"
+    title = "Logsight Stage Verifier [ID: " + vresults['compareId'] + "]"
     token = os.environ['INPUT_GITHUB_TOKEN']
     labels = ['log-verification']
     # assignees = os.environ['GITHUB_ACTOR']

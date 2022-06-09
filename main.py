@@ -1,71 +1,62 @@
-import copy
-import time
-from datetime import datetime
 import argparse
+import copy
+import json
+import time
 
 import logsight.exceptions
-from dateutil.tz import tzlocal
-from logsight.user import LogsightUser
-from logsight.logs import LogsightLogs
 from logsight.compare import LogsightCompare
+from logsight.user import LogsightUser
 
 from utils import create_verification_report, create_github_issue
 
-
-SECONDS_SLEEP = 3
+SECONDS_SLEEP = 10
 
 # Instantiate the parser
 parser = argparse.ArgumentParser(description='Logsight Init')
 parser.add_argument('--username', type=str, help='URL of logsight')
 parser.add_argument('--password', type=str, help='Basic auth username')
-parser.add_argument('--application_id', type=str, help='Application id')
-parser.add_argument('--baseline_tag', type=str, help='Baseline tag')
-parser.add_argument('--candidate_tag', type=str, help='Compare tag')
+parser.add_argument('--application_name', type=str, help='Application name')
+parser.add_argument('--baseline_tags', type=str, help='Baseline tags')
+parser.add_argument('--candidate_tags', type=str, help='Compare tags')
 parser.add_argument('--risk_threshold', type=int, help='Risk threshold (between 0 and 100)')
 args = parser.parse_args()
 EMAIL = args.username
 PASSWORD = args.password
-APPLICATION_ID = args.application_id
-BASELINE_TAG = args.baseline_tag
-CANDIDATE_TAG = args.candidate_tag
+BASELINE_TAGS = {"version": args.baseline_tags, "applicationName": args.application_name}
+CANDIDATE_TAGS = {"version": args.candidate_tags, "applicationName": args.application_name}
 RISK_THRESHOLD = args.risk_threshold
-
 user = LogsightUser(email=EMAIL, password=PASSWORD)
-
-end_stream_log_entry = {'timestamp': datetime.now(tz=tzlocal()).isoformat(), 'message': "End stream."}
-g = LogsightLogs(user.token)
-r = g.send(APPLICATION_ID, [end_stream_log_entry], tag='end_stream')
 time.sleep(SECONDS_SLEEP)
-flush_id = g.flush(r['receiptId'])['flushId']
-
-compare = LogsightCompare(user.user_id, user.token)
+compare = LogsightCompare(user.token)
+flag = 0
 while True:
     try:
-        r = compare.compare(app_id=APPLICATION_ID,
-                            baseline_tag=BASELINE_TAG,
-                            candidate_tag=CANDIDATE_TAG,
-                            flush_id=flush_id)
+        r = compare.compare(baseline_tags=BASELINE_TAGS,
+                            candidate_tags=CANDIDATE_TAGS)
+        print(r)
         break
     except logsight.exceptions.Conflict as conflict:
         time.sleep(SECONDS_SLEEP)
+        print("Conflict, sleeping..")
     except Exception as e:
-        application_tags = [tag['tag'] for tag in compare.tags(app_id=APPLICATION_ID)]
-        if CANDIDATE_TAG not in application_tags and BASELINE_TAG not in application_tags:
+        time.sleep(SECONDS_SLEEP)
+        if flag == 0:
+            BASELINE_TAGS = copy.deepcopy(CANDIDATE_TAGS)
+            flag += 1
+        elif flag == 1:
+            CANDIDATE_TAGS = copy.deepcopy(BASELINE_TAGS)
+            flag += 1
+        else:
             print("Both tags do not exist! We cant perform verification!")
             exit(0)
-        if BASELINE_TAG not in application_tags:
-            BASELINE_TAG = copy.deepcopy(CANDIDATE_TAG)
-        if CANDIDATE_TAG not in application_tags:
-            CANDIDATE_TAG = copy.deepcopy(BASELINE_TAG)
-        time.sleep(SECONDS_SLEEP)
 
 report = create_verification_report(vresults=r,
-                                    baseline_tag=BASELINE_TAG,
-                                    candidate_tag=CANDIDATE_TAG)
+                                    baseline_tags=BASELINE_TAGS,
+                                    candidate_tags=CANDIDATE_TAGS)
 print(report)
 
 if r['risk'] >= RISK_THRESHOLD:
-    create_github_issue(report)
+    create_github_issue(report, r)
     exit(1)
 else:
     exit(0)

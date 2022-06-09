@@ -10,8 +10,9 @@ ENV CFLAGS="-I/usr/include"
 WORKDIR /code
 COPY ./main.py .
 COPY ./utils.py .
-# install dependencies
+# install dependencieshttps://github.com/user/repository/archive/branch.zip
 RUN pip install --no-cache-dir PyGithub logsight-sdk-py
+
 #
 ## copy code
 #COPY ../logsight-verification-action .
