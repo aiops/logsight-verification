@@ -14,15 +14,15 @@ SECONDS_SLEEP = 10
 parser = argparse.ArgumentParser(description='Logsight Init')
 parser.add_argument('--username', type=str, help='URL of logsight')
 parser.add_argument('--password', type=str, help='Basic auth username')
-parser.add_argument('--application_name', type=str, help='Application name')
-parser.add_argument('--baseline_tags', type=str, help='Baseline tags')
-parser.add_argument('--candidate_tags', type=str, help='Compare tags')
+parser.add_argument('--repository', type=str, help='Repository name')
+parser.add_argument('--baseline_tag', type=str, help='Baseline tag')
+parser.add_argument('--candidate_tag', type=str, help='Compare tag')
 parser.add_argument('--risk_threshold', type=int, help='Risk threshold (between 0 and 100)')
 args = parser.parse_args()
 EMAIL = args.username
 PASSWORD = args.password
-BASELINE_TAGS = {"version": args.baseline_tags, "applicationName": args.application_name}
-CANDIDATE_TAGS = {"version": args.candidate_tags, "applicationName": args.application_name}
+BASELINE_TAGS = {"version": args.baseline_tag, "repository": args.repository}
+CANDIDATE_TAGS = {"version": args.candidate_tag, "repository": args.repository}
 RISK_THRESHOLD = args.risk_threshold
 auth = LogsightAuthentication(email=EMAIL, password=PASSWORD)
 time.sleep(SECONDS_SLEEP)
@@ -32,7 +32,6 @@ while True:
     try:
         r = compare.compare(baseline_tags=BASELINE_TAGS,
                             candidate_tags=CANDIDATE_TAGS)
-        print(r)
         break
     except logsight.exceptions.Conflict as conflict:
         time.sleep(SECONDS_SLEEP)
